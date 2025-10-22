@@ -17,9 +17,10 @@ The problem is designed for **Codeforces Div1/Div2 level** and includes:
 - **Players:** `n` players with skill ratings `S_i`.
 - **Match Probability:** The probability that player `i` beats player `j` is:
 
-\[
+$$
 P(i \text{ beats } j) = \frac{S_i}{S_i + S_j}
-\]
+$$
+
 
 - **Tournament:** All players play matches, and the top `k` players advance.
 - **Tasks:**
