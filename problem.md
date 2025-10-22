@@ -9,33 +9,7 @@ There are n elite players, each with a known skill rating S_i.
 
 Matches are not deterministic; instead, they are probabilistic. If player i faces player j, the probability that i wins is:
 
-𝑃
-(
-i beats j
-)
-=
-𝑆
-𝑖
-𝑆
-𝑖
-+
-𝑆
-𝑗
-P(i beats j)=
-S
-i
-	​
-
-+S
-j
-	​
-
-S
-i
-	​
-
-	​
-
+P(i \text{ beats } j) = \frac{S_i}{S_i + S_j}
 
 The tournament proceeds in rounds where every player gets a chance to compete with others. After all matches, only the top k players advance to the next stage.
 
