@@ -1,4 +1,4 @@
-#Statistical Tournament
+# Statistical Tournament
 
 ## Overview
 This repository contains an original competitive programming problem titled **"Statistical Tournament"**. The problem involves probability, statistics, and expected outcomes in a tournament setting. Players have skill ratings, and match outcomes are probabilistic based on their relative skills.
