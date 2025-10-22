@@ -36,27 +36,6 @@ P(i \text{ beats } j) = \frac{S_i}{S_i + S_j}
 
 ---
 
-## Folder Structure
-'''
-├── qwen/
-│ ├── conversations.md # Qwen AI runs
-│ ├── run_01.py
-│ ├── run_02.py
-│ └── run_03.py
-├── test_cases/
-│ ├── 1.in
-│ ├── 1.out
-│ └── ... (at least 5 cases)
-├── idea.md # Problem idea and evolution
-├── problem.md # Full problem statement
-├── solution.md # Explanation of optimal solution
-├── solution.py # Optimal Python solution
-├── solution_bf.py # Brute-force Python solution
-├── requirements.json # Time and memory limits
-└── README.md # Project overview
-'''
----
-
 ## How to Run
 
 1. **Optimal solution:**
