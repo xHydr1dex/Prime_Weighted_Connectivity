@@ -65,20 +65,3 @@ for n, k, skills in test_cases:
     med, prob0 = solve_exact(n, k, skills)
     print(f"{med:.6f}")
     print(f"{prob0:.6f}")
-
-'''
-Test case 1
-Input:
-4 2
-1 2 3 4
-
-Expected Output:
-
-3.500000
-0.583333
-
-Received output:
-    
-2.817460
-0.277143
-'''

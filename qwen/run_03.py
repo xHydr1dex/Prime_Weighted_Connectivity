@@ -1,60 +1,88 @@
-from itertools import combinations
+from collections import defaultdict
 
-def solve_exact(n, k, skills):
-    # Precompute win probabilities for every pair
-    P = [[0.0] * n for _ in range(n)]
-    for i in range(n):
-        for j in range(n):
-            if i != j:
-                P[i][j] = skills[i] / (skills[i] + skills[j])
-    
-    # List all matches (i, j) with i < j
-    matches = []
-    for i in range(n):
-        for j in range(i + 1, n):
-            matches.append((i, j))
+def solve_with_random_tiebreak(n, k, skills):
+    matches = [(i, j) for i in range(n) for j in range(i+1, n)]
     total_matches = len(matches)
-    
-    expected_median = 0.0
-    prob_player0_in_topk = 0.0
+    exp_median = 0.0
+    prob_p0 = 0.0
 
-    # Iterate over all 2^(#matches) possible outcomes
-    for outcome in range(1 << total_matches):
-        prob = 1.0
+    for mask in range(1 << total_matches):
         wins = [0] * n
+        prob_outcome = 1.0
 
-        # Simulate each match
         for idx, (i, j) in enumerate(matches):
-            if outcome & (1 << idx):
-                # i wins
+            if mask & (1 << idx):
                 wins[i] += 1
-                prob *= P[i][j]
+                prob_outcome *= skills[i] / (skills[i] + skills[j])
             else:
-                # j wins
                 wins[j] += 1
-                prob *= P[j][i]
+                prob_outcome *= skills[j] / (skills[i] + skills[j])
 
-        # Determine ranking: sort by wins (desc), then by index (asc) for tie-breaking
-        players = list(range(n))
-        players.sort(key=lambda x: (-wins[x], x))
-        topk_players = players[:k]
-        topk_skills = [skills[i] for i in topk_players]
-        topk_skills.sort()
+        # Group players by win count
+        win_to_players = defaultdict(list)
+        for i in range(n):
+            win_to_players[wins[i]].append(i)
+        
+        # Sort win counts descending
+        sorted_wins = sorted(win_to_players.keys(), reverse=True)
+        
+        selected = []
+        remaining = k
+        for w in sorted_wins:
+            group = win_to_players[w]
+            if len(group) <= remaining:
+                selected.extend(group)
+                remaining -= len(group)
+            else:
+                # Tie at cutoff: choose 'remaining' players uniformly at random
+                # We'll compute expected contribution
+                t = len(group)
+                need = remaining
+                # Probability player i in group is selected = need / t
+                # For median: we must average over all C(t, need) subsets
+                # But for small t (≤6), we can enumerate subsets
+                from itertools import combinations
+                total_subsets = 0
+                sum_median = 0.0
+                sum_prob_p0 = 0.0
 
-        # Compute median skill of top-k
-        if k % 2 == 1:
-            median_skill = topk_skills[k // 2]
-        else:
-            median_skill = (topk_skills[k // 2 - 1] + topk_skills[k // 2]) / 2.0
+                for subset in combinations(group, need):
+                    full_topk = selected + list(subset)
+                    # Get skills of top-k
+                    topk_skills = [skills[i] for i in full_topk]
+                    topk_skills.sort()
+                    if k % 2 == 1:
+                        median_val = topk_skills[k//2]
+                    else:
+                        median_val = (topk_skills[k//2 - 1] + topk_skills[k//2]) / 2.0
+                    sum_median += median_val
+                    if 0 in full_topk:
+                        sum_prob_p0 += 1
+                    total_subsets += 1
 
-        expected_median += prob * median_skill
-        if 0 in topk_players:
-            prob_player0_in_topk += prob
+                # Expected median contribution from this outcome
+                exp_median += prob_outcome * (sum_median / total_subsets)
+                prob_p0 += prob_outcome * (sum_prob_p0 / total_subsets)
+                remaining = 0
+                break
 
-    return expected_median, prob_player0_in_topk
+        if remaining > 0:
+            # Should not happen, but just in case
+            full_topk = selected
+            topk_skills = [skills[i] for i in full_topk]
+            topk_skills.sort()
+            if k % 2 == 1:
+                median_val = topk_skills[k//2]
+            else:
+                median_val = (topk_skills[k//2 - 1] + topk_skills[k//2]) / 2.0
+            exp_median += prob_outcome * median_val
+            if 0 in full_topk:
+                prob_p0 += prob_outcome
+
+    return exp_median, prob_p0
 
 
-# Run the three test cases
+# Run test cases
 test_cases = [
     (4, 2, [1, 2, 3, 4]),
     (5, 3, [5, 1, 3, 4, 2]),
@@ -62,24 +90,7 @@ test_cases = [
 ]
 
 for n, k, skills in test_cases:
-    med, prob0 = solve_exact(n, k, skills)
+    med, prob0 = solve_with_random_tiebreak(n, k, skills)
     print(f"{med:.6f}")
     print(f"{prob0:.6f}")
 
-
-'''
-Test case 3
-Input:
-6 4
-10 20 30 40 50 60
-
-Expected Output:
-
-42.500000
-0.428571
-
-Received output:
-    
-39.753818
-0.305660
-'''

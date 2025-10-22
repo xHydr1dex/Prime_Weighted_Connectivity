@@ -1,85 +1,53 @@
 from itertools import combinations
 
-def solve_exact(n, k, skills):
-    # Precompute win probabilities for every pair
-    P = [[0.0] * n for _ in range(n)]
-    for i in range(n):
-        for j in range(n):
-            if i != j:
-                P[i][j] = skills[i] / (skills[i] + skills[j])
+def main():
+    test_cases = [
+        (4, 2, [1, 2, 3, 4]),
+        (5, 3, [5, 1, 3, 4, 2]),
+        (6, 4, [10, 20, 30, 40, 50, 60])
+    ]
     
-    # List all matches (i, j) with i < j
-    matches = []
-    for i in range(n):
-        for j in range(i + 1, n):
-            matches.append((i, j))
-    total_matches = len(matches)
-    
-    expected_median = 0.0
-    prob_player0_in_topk = 0.0
+    for n, k, skills in test_cases:
+        # Precompute match list
+        matches = [(i, j) for i in range(n) for j in range(i+1, n)]
+        total = len(matches)
+        exp_median = 0.0
+        prob_p0 = 0.0
 
-    # Iterate over all 2^(#matches) possible outcomes
-    for outcome in range(1 << total_matches):
-        prob = 1.0
-        wins = [0] * n
+        # Iterate over all 2^total outcomes
+        for mask in range(1 << total):
+            wins = [0] * n
+            prob = 1.0
 
-        # Simulate each match
-        for idx, (i, j) in enumerate(matches):
-            if outcome & (1 << idx):
-                # i wins
-                wins[i] += 1
-                prob *= P[i][j]
+            for idx, (i, j) in enumerate(matches):
+                if mask & (1 << idx):
+                    # i wins
+                    wins[i] += 1
+                    prob *= skills[i] / (skills[i] + skills[j])
+                else:
+                    # j wins
+                    wins[j] += 1
+                    prob *= skills[j] / (skills[i] + skills[j])
+
+            # Rank players: more wins first, then lower index first
+            ranked = sorted(range(n), key=lambda x: (-wins[x], x))
+            topk = ranked[:k]
+            topk_skills = [skills[i] for i in topk]
+            topk_skills.sort()
+
+            # Median
+            if k % 2 == 1:
+                median_val = topk_skills[k//2]
             else:
-                # j wins
-                wins[j] += 1
-                prob *= P[j][i]
+                median_val = (topk_skills[k//2 - 1] + topk_skills[k//2]) / 2.0
 
-        # Determine ranking: sort by wins (desc), then by index (asc) for tie-breaking
-        players = list(range(n))
-        players.sort(key=lambda x: (-wins[x], x))
-        topk_players = players[:k]
-        topk_skills = [skills[i] for i in topk_players]
-        topk_skills.sort()
+            exp_median += prob * median_val
+            if 0 in topk:
+                prob_p0 += prob
 
-        # Compute median skill of top-k
-        if k % 2 == 1:
-            median_skill = topk_skills[k // 2]
-        else:
-            median_skill = (topk_skills[k // 2 - 1] + topk_skills[k // 2]) / 2.0
+        print(f"{exp_median:.6f}")
+        print(f"{prob_p0:.6f}")
 
-        expected_median += prob * median_skill
-        if 0 in topk_players:
-            prob_player0_in_topk += prob
-
-    return expected_median, prob_player0_in_topk
-
-
-# Run the three test cases
-test_cases = [
-    (4, 2, [1, 2, 3, 4]),
-    (5, 3, [5, 1, 3, 4, 2]),
-    (6, 4, [10, 20, 30, 40, 50, 60])
-]
-
-for n, k, skills in test_cases:
-    med, prob0 = solve_exact(n, k, skills)
-    print(f"{med:.6f}")
-    print(f"{prob0:.6f}")
-
-
-'''
-Test case 2
-Input:
-5 3
-5 1 3 4 2
-
-Expected Output:
-
-4.000000
-0.500000
-
-Received output:
+if __name__ == "__main__":
+    main()
     
-3.649207
-0.920100
-'''
