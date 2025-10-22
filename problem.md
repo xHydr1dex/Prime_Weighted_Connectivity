@@ -51,3 +51,18 @@ You, as the official statistician, are tasked with computing these values effici
 ## Example
 
 ### Input
+
+4 2
+1 2 3 4
+
+### Output
+
+3.500000
+0.583333
+
+### Explanation
+
+All possible match outcomes are considered with the given probability model.
+
+- **Expected median** among the top 2 players = 3.5  
+- **Probability** of player 1 reaching top 2 = \( \frac{7}{12} \approx 0.583333 \)
