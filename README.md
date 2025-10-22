@@ -37,7 +37,7 @@ P(i \text{ beats } j) = \frac{S_i}{S_i + S_j}
 ---
 
 ## Folder Structure
-
+'''
 ├── qwen/
 │ ├── conversations.md # Qwen AI runs
 │ ├── run_01.py
@@ -54,7 +54,7 @@ P(i \text{ beats } j) = \frac{S_i}{S_i + S_j}
 ├── solution_bf.py # Brute-force Python solution
 ├── requirements.json # Time and memory limits
 └── README.md # Project overview
-
+'''
 ---
 
 ## How to Run
